@@ -4,6 +4,7 @@
 require_once 'src/Core/Container.php';
 require_once 'src/Core/App.php';
 require_once 'src/Core/Model.php';
+require_once 'src/Core/Middleware.php';
 require_once 'app/Models/Gebruiker.php';
 require_once 'src/Core/Database.php';
 require_once 'src/Routing/Router.php';
@@ -15,6 +16,9 @@ require_once 'app/Middleware/Authentication.php';
 require_once 'app/Views/BeheerderHomeView.php';
 require_once 'app/Models/Opleidingen.php';
 require_once 'app/Middleware/AddOpleiding.php';
+require_once 'app/Views/c404.php';
+require_once 'app/Middleware/Logout.php';
+require_once 'app/Template/head.php';
 
 $app = new Core\App();
 
@@ -55,7 +59,7 @@ $app->getContainer()->bind('App\Views\BeheerderHomeView', function () {
 
 // Registreer de Authentication-middleware
 $app->getContainer()->bind('App\Middleware\Authentication', function () {
-    return new App\Middleware\Authentication();
+    return new App\Middleware\Authentication('/login', 'POST');
 });
 
 $app->getContainer()->bind('App\Models\Opleidingen', function ($container) {
@@ -64,4 +68,16 @@ $app->getContainer()->bind('App\Models\Opleidingen', function ($container) {
 
 $app->getContainer()->bind('App\Middleware\AddOpleiding', function () {
     return new App\Middleware\AddOpleiding();
+});
+
+$app->getContainer()->bind('App\Views\c404', function () {
+    return new App\Views\c404();
+});
+
+$app->getContainer()->bind('App\Middleware\Logout', function () {
+    return new App\Middleware\Logout();
+});
+
+$app->getContainer()->bind('App\Template\head', function () {
+    return new App\Template\head();
 });

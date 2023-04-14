@@ -11,15 +11,15 @@ class AddOpleiding
 
         $path = $request->getPath();
         $method = $request->getMethod();
-        $naam = $_POST['opleiding'];
-        $beschrijving = $_POST['beschrijving'];
+        $naam = $request->getAttribute('naam');
+        $beschrijving = $request->getAttribute('beschrijving');
 
         if ($method == 'POST' && $path == '/addOpleiding') {
             if (empty($naam) || empty($beschrijving)) {
                 return new Response(400, 'Vul alle velden in');
             }
             $opleidingen->insertOpleiding($naam, $beschrijving);
-            return new Response(302, '', ['Location' => '/home']);
+            return new Response(302, '', '/home');
         }
 
         return $next($request);

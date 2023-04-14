@@ -6,12 +6,12 @@ class Response
     private int $statusCode;
     private string $body;
 
-    public function __construct(int $statusCode, string $body, array $headers = [])
+    public function __construct(int $statusCode, string $body, string $header = '')
     {
         $this->statusCode = $statusCode;
         $this->body = $body;
-        foreach ($headers as $header => $value) {
-            header($header . ': ' . $value);
+        if ($header) {
+            header("Location: $header");
         }
     }
 

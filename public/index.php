@@ -13,6 +13,11 @@ $router = $app->getContainer()->make('src\Routing\Router');
 
 $router->get('/login', function () {
     global $app;
+
+    if (isset($_SESSION['gebruiker'])) {
+        return new Response(302, '', '/home');
+    }
+
     $loginView = $app->getContainer()->make('App\Views\LoginView');
     return $loginView->render();
 });
@@ -20,7 +25,7 @@ $router->get('/login', function () {
 $router->get('/home', function () {
     global $app;
     if (!isset($_SESSION['gebruiker'])) {
-        return new Response(302, '', ['Location' => '/login']);
+        return new Response(302, '', '/login');
     }
     if ($_SESSION['gebruiker']['Rol'] == 'beheerder') {
         $beheerderHomeView = $app->getContainer()->make('App\Views\BeheerderHomeView');
@@ -39,6 +44,7 @@ $router->get('/home', function () {
 
 $authentication = $app->getContainer()->make('App\Middleware\Authentication');
 $addCourse = $app->getContainer()->make('App\Middleware\AddOpleiding');
+$logout = $app->getContainer()->make('App\Middleware\Logout');
 
 $request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 $request = $request->withAttribute('app', $app);
@@ -47,6 +53,7 @@ $requestHandler = new RequestHandler();
 $requestHandler->addMiddleware($router);
 $requestHandler->addMiddleware($authentication);
 $requestHandler->addMiddleware($addCourse);
+$requestHandler->addMiddleware($logout);
 
 $response = $requestHandler->handleRequest($request);
 

@@ -14,6 +14,12 @@ class RequestHandler
 
     public function handleRequest(Request $request): Response
     {
+        global $app;
+        foreach ($_REQUEST as $key => $value) {
+            $request = $request->withAttribute($key, $value);
+        }
+
+
         $middleware = array_shift($this->middlewares);
         if ($middleware) {
             return $middleware($request, function (Request $request) {
@@ -21,6 +27,8 @@ class RequestHandler
             });
         }
 
-        return new Response(404, '404 - Not found');
+        $c404 = $app->getContainer()->make('App\Views\c404');
+
+        return $c404->render();
     }
 }

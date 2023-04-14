@@ -18,13 +18,4 @@ class Gebruiker extends Model
 
         return $result ? $result : null;
     }
-
-    public function findByPrimaryKey(int $id): ?array
-    {
-        $statement = $this->database->getPdo()->prepare("SELECT * FROM {$this->table} WHERE {$this->primaryKey} = :id");
-        $statement->execute([':id' => $id]);
-        $result = $statement->fetch();
-
-        return $result ? $result : null;
-    }
 }

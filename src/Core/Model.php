@@ -22,8 +22,5 @@ abstract class Model
 
         return $result ? $result : null;
     }
-
-    // Implementeer hier aanvullende ORM-functies zoals save() en delete().
-
 }
 

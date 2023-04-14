@@ -1,36 +1,33 @@
 <?php
+
 namespace App\Middleware;
 
-
+use Core\Middleware;
 use src\Http\Response;
 
-class Authentication
+class Authentication extends Middleware
 {
-    public function __invoke($request, $next)
+    public function handle($request): Response
     {
-        global $app;
+        $app = $request->getAttribute('app');
         $gebruiker = $app->getContainer()->make('App\Models\Gebruiker');
-        if (isset($_POST['email'])) {
-            $gebruikerdata = $gebruiker->findByEmail($_POST['email']);
+        $email = $request->getAttribute('email');
+        $wachtwoord = $request->getAttribute('wachtwoord');
+
+        if ($email !== null) {
+            $gebruikerdata = $gebruiker->findByEmail($email);
         } else {
             $gebruikerdata = null;
         }
-
-
-        $method = $request->getMethod();
-        $path = $request->getPath();
-        if ($method == 'POST' && $path == '/login'){
-            if ($gebruikerdata) {
-                if (password_verify($_POST['password'], $gebruikerdata['Wachtwoord'])) {
-                    $_SESSION['gebruiker'] = $gebruikerdata;
-                    return new Response(302, '', ['Location' => '/home']);
-                } else {
-                    return new Response(401, 'Wachtwoord is onjuist');
-                }
+        if ($gebruikerdata) {
+            if (password_verify($wachtwoord, $gebruikerdata['Wachtwoord'])) {
+                $_SESSION['gebruiker'] = $gebruikerdata;
+                return new Response(302, '', 'home');
             } else {
-                return new Response(401, 'Gebruiker bestaat niet');
+                return new Response(401, 'Wachtwoord is onjuist');
             }
+        } else {
+            return new Response(401, 'Gebruiker bestaat niet');
         }
-        return $next($request);
     }
 }
