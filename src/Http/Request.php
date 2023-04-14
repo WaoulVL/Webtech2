@@ -1,39 +1,26 @@
 <?php
 
-namespace src\Http;
+namespace Http;
 
 class Request
 {
-    private string $method;
-    private string $path;
-    private array $attributes = [];
-
-    public function __construct(string $method, string $path)
-    {
-        $this->method = $method;
-        $this->path = $path;
-    }
-
     public function getMethod(): string
     {
-        return $this->method;
+        return $_SERVER['REQUEST_METHOD'];
     }
 
-    public function getPath(): string
+    public function getUri(): string
     {
-        return $this->path;
+        return $_SERVER['REQUEST_URI'];
     }
 
     public function getAttribute(string $key)
     {
-        return $this->attributes[$key] ?? null;
+        return $_REQUEST[$key] ?? null;
     }
 
-    public function withAttribute(string $key, $value): self
+    public function getAttributes(): array
     {
-        $newRequest = clone $this;
-        $newRequest->attributes[$key] = $value;
-
-        return $newRequest;
+        return $_REQUEST;
     }
 }

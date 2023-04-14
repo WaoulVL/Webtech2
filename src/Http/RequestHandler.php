@@ -1,34 +1,31 @@
 <?php
 // src/Http/RequestHandler.php
 
-namespace src\Http;
+namespace Http;
+
+use Core\Container;
+use Core\Router;
 
 class RequestHandler
 {
-    private array $middlewares = [];
+    private Router $router;
+    private Request $request;
+    private Response $response;
+    private Container $container;
 
-    public function addMiddleware(callable $middleware): void
+    public function __construct(Router $router, Request $request, Response $response, $container)
     {
-        $this->middlewares[] = $middleware;
+        $this->router = $router;
+        $this->request = $request;
+        $this->response = $response;
+        $this->container = $container;
     }
 
-    public function handleRequest(Request $request): Response
+    /**
+     * @throws \Exception
+     */
+    public function handle(): void
     {
-        global $app;
-        foreach ($_REQUEST as $key => $value) {
-            $request = $request->withAttribute($key, $value);
-        }
-
-
-        $middleware = array_shift($this->middlewares);
-        if ($middleware) {
-            return $middleware($request, function (Request $request) {
-                return $this->handleRequest($request);
-            });
-        }
-
-        $c404 = $app->getContainer()->make('App\Views\c404');
-
-        return $c404->render();
+        $this->router->dispatch($this->request, $this->container, $this->response);
     }
 }

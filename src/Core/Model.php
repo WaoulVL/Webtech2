@@ -32,4 +32,10 @@ abstract class Model
         $result = $statement->fetchAll();
         return $result ? $result : null;
     }
+
+    public function delete(int $id): void
+    {
+        $statement = $this->database->getPdo()->prepare("DELETE FROM {$this->table} WHERE {$this->primaryKey} = :id");
+        $statement->execute([':id' => $id]);
+    }
 }

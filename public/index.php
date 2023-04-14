@@ -1,73 +1,44 @@
 <?php
 // public/index.php
 
-global $app;
 require_once '../bootstrap.php';
 
-use src\Http\Request;
-use src\Http\RequestHandler;
-use src\Http\Response;
-
 session_start();
-$router = $app->getContainer()->make('src\Routing\Router');
 
-$router->get('/login', function () {
-    global $app;
+// Create a Request object
+$request = new Http\Request();
 
-    if (isset($_SESSION['gebruiker'])) {
-        return new Response(302, '', '/home');
-    }
+// Create a Response object
+$response = new Http\Response();
 
-    $loginView = $app->getContainer()->make('App\Views\LoginView');
-    return $loginView->render();
-});
+// Create a Router object and add routes
+$router = new Core\Router();
+// Get the container instance
+$app = Core\App::getInstance();
+$container = $app->getContainer();
 
-$router->get('/home', function () {
-    global $app;
-    if (!isset($_SESSION['gebruiker'])) {
-        return new Response(302, '', '/login');
-    }
-    if ($_SESSION['gebruiker']['Rol'] == 'beheerder') {
-        $beheerderHomeView = $app->getContainer()->make('App\Views\BeheerderHomeView');
-        return $beheerderHomeView->render();
-    }
-    if ($_SESSION['gebruiker']['Rol'] == 'docent') {
-        $docentHomeView = $app->getContainer()->make('App\Views\DocentHomeView');
-        return $docentHomeView->render();
-    }
-    if ($_SESSION['gebruiker']['Rol'] == 'student') {
-        $studentHomeView = $app->getContainer()->make('App\Views\StudentHomeView');
-        return $studentHomeView->render();
-    }
-    return new Response(401, 'Geen toegang');
-});
+$router->add('/', ['controller' => 'IndexController', 'action' => 'index']);
+$router->add('/login', ['controller' => 'LoginController', 'action' => 'login']);
+$router->add('/logout', ['controller' => 'LoginController', 'action' => 'logout']);
+$router->add('/home', ['controller' => 'HomeController', 'action' => 'home']);
+$router->add('/user-management', ['controller' => 'UserManagementController', 'action' => 'index']);
+$router->add('/user-management/add', ['controller' => 'UserManagementController', 'action' => 'add']);
+$router->add('/user-management/edit/{id}', ['controller' => 'UserManagementController', 'action' => 'edit']);
+$router->add('/user-management/delete/{id}', ['controller' => 'UserManagementController', 'action' => 'delete']);
 
-$authentication = $app->getContainer()->make('App\Middleware\Authentication');
-$addOpleiding = $app->getContainer()->make('App\Middleware\AddOpleiding');
-$logout = $app->getContainer()->make('App\Middleware\Logout');
-$addCourse = $app->getContainer()->make('App\Middleware\AddCourse');
-$addVak = $app->getContainer()->make('App\Middleware\AddVak');
-$addTentamen = $app->getContainer()->make('App\Middleware\AddTentamen');
-$addGebruiker = $app->getContainer()->make('App\Middleware\AddGebruiker');
-$addDocentVak = $app->getContainer()->make('App\Middleware\AddDocentvakken');
-
-$request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-$request = $request->withAttribute('app', $app);
-
-$requestHandler = new RequestHandler();
-$requestHandler->addMiddleware($router);
-$requestHandler->addMiddleware($authentication);
-$requestHandler->addMiddleware($addOpleiding);
-$requestHandler->addMiddleware($addCourse);
-$requestHandler->addMiddleware($logout);
-$requestHandler->addMiddleware($addCourse);
-$requestHandler->addMiddleware($addVak);
-$requestHandler->addMiddleware($addTentamen);
-$requestHandler->addMiddleware($addGebruiker);
-$requestHandler->addMiddleware($addDocentVak);
+$router->addMiddleware(['/login'], $container->get('App\Middleware\RedirectIfAuthenticated'));
+$router->addMiddleware(
+    ['/home', '/user-management', '/user-management/add', '/user-management/edit/{id}', '/user-management/delete/{id}'],
+    $container->get('App\Middleware\Authenticated')
+);
 
 
-$response = $requestHandler->handleRequest($request);
+// Create a RequestHandler object with dependencies
+$requestHandler = new Http\RequestHandler($router, $request, $response, $container);
 
-http_response_code($response->getStatusCode());
-echo $response->getBody();
+// Handle the request
+try {
+    $requestHandler->handle();
+} catch (Exception $e) {
+    echo $e->getMessage();
+}

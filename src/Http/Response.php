@@ -1,27 +1,42 @@
 <?php
-namespace src\Http;
+namespace Http;
 
 class Response
 {
     private int $statusCode;
     private string $body;
+    private array $headers;
 
-    public function __construct(int $statusCode, string $body, string $header = '')
+    public function __construct(int $statusCode = 200, string $body = '', array $headers = [])
     {
         $this->statusCode = $statusCode;
         $this->body = $body;
-        if ($header) {
-            header("Location: $header");
+        $this->headers = $headers;
+    }
+
+    public function send(): void
+    {
+        http_response_code($this->statusCode);
+
+        foreach ($this->headers as $header => $value) {
+            header("$header: $value");
         }
+
+        echo $this->body;
     }
 
-    public function getStatusCode(): int
+    public function setStatusCode(int $statusCode): void
     {
-        return $this->statusCode;
+        $this->statusCode = $statusCode;
     }
 
-    public function getBody(): string
+    public function addHeader(string $key, string $value): void
     {
-        return $this->body;
+        $this->headers[$key] = $value;
+    }
+
+    public function setBody(?string $renderTemplate): void
+    {
+        $this->body = $renderTemplate;
     }
 }
