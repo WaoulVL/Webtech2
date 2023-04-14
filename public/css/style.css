@@ -75,7 +75,7 @@ input[type="submit"]:hover {
     background-color: #0057D8;
 }
 
-input[type="text"] {
+input[type="text"], select, input[type="date"], input[type="time"] {
     font-size: 1rem;
     font-weight: 400;
     width: 100%;
@@ -92,6 +92,14 @@ input[type="text"]::placeholder {
     color: #aaa;
 }
 
-input[type="text"]:focus,input[type="password"]:focus,input[type="email"]:focus {
+input[type="text"]:focus,input[type="password"]:focus,input[type="email"]:focus, select:focus, input[type="date"]:focus, input[type="time"]:focus {
     background-color: #555;
+}
+
+select:hover {
+    background-color: #555;
+}
+
+input[type="date"], input[type="time"] {
+    text-align: center;
 }

@@ -7,11 +7,18 @@ class AddOpleiding
 {
     public function __invoke($request, $next) {
         global $app;
+
+        if (isset($_SESSION['gebruiker'])) {
+            if ($_SESSION['gebruiker']['Rol'] !== 'beheerder') {
+                return new Response(302, '', '/home');
+            }
+        }
+
         $opleidingen = $app->getContainer()->make('App\Models\Opleidingen');
 
         $path = $request->getPath();
         $method = $request->getMethod();
-        $naam = $request->getAttribute('naam');
+        $naam = $request->getAttribute('opleiding');
         $beschrijving = $request->getAttribute('beschrijving');
 
         if ($method == 'POST' && $path == '/addOpleiding') {

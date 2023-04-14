@@ -1,5 +1,4 @@
 <?php
-// app/Models/Gebruiker.php
 
 namespace App\Models;
 
@@ -7,11 +6,11 @@ use Core\Model;
 
 class Courses extends Model
 {
-    protected string $table = 'Courses';
-    protected string $primaryKey = 'CourseID';
+    public function insertCourse(string $opleiding, string $course, string $beschrijving): ?array {
+        $statement = $this->database->getPdo()->prepare("INSERT INTO {$this->table} (OpleidingID, Naam, Beschrijving) VALUES (:opleiding, :course, :beschrijving)");
+        $statement->execute([':opleiding' => $opleiding, ':course' => $course,':beschrijving' => $beschrijving]);
+        $result = $statement->fetch();
 
-    public function insertCourse(string $course): ?array {
-        //TODO
-        return null;
+        return $result ? $result : null;
     }
 }

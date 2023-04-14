@@ -43,8 +43,13 @@ $router->get('/home', function () {
 });
 
 $authentication = $app->getContainer()->make('App\Middleware\Authentication');
-$addCourse = $app->getContainer()->make('App\Middleware\AddOpleiding');
+$addOpleiding = $app->getContainer()->make('App\Middleware\AddOpleiding');
 $logout = $app->getContainer()->make('App\Middleware\Logout');
+$addCourse = $app->getContainer()->make('App\Middleware\AddCourse');
+$addVak = $app->getContainer()->make('App\Middleware\AddVak');
+$addTentamen = $app->getContainer()->make('App\Middleware\AddTentamen');
+$addGebruiker = $app->getContainer()->make('App\Middleware\AddGebruiker');
+$addDocentVak = $app->getContainer()->make('App\Middleware\AddDocentvakken');
 
 $request = new Request($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 $request = $request->withAttribute('app', $app);
@@ -52,8 +57,15 @@ $request = $request->withAttribute('app', $app);
 $requestHandler = new RequestHandler();
 $requestHandler->addMiddleware($router);
 $requestHandler->addMiddleware($authentication);
+$requestHandler->addMiddleware($addOpleiding);
 $requestHandler->addMiddleware($addCourse);
 $requestHandler->addMiddleware($logout);
+$requestHandler->addMiddleware($addCourse);
+$requestHandler->addMiddleware($addVak);
+$requestHandler->addMiddleware($addTentamen);
+$requestHandler->addMiddleware($addGebruiker);
+$requestHandler->addMiddleware($addDocentVak);
+
 
 $response = $requestHandler->handleRequest($request);
 

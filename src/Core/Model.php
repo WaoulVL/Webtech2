@@ -9,9 +9,11 @@ abstract class Model
     protected string $table;
     protected string $primaryKey;
 
-    public function __construct(Database $database)
+    public function __construct(Database $database, string $table, string $primaryKey)
     {
         $this->database = $database;
+        $this->table = $table;
+        $this->primaryKey = $primaryKey;
     }
 
     public function find(int $id): ?array
@@ -22,5 +24,12 @@ abstract class Model
 
         return $result ? $result : null;
     }
-}
 
+    public function findAll(): ?array
+    {
+        $statement = $this->database->getPdo()->prepare("SELECT * FROM {$this->table}");
+        $statement->execute();
+        $result = $statement->fetchAll();
+        return $result ? $result : null;
+    }
+}
